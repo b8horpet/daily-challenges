@@ -1,7 +1,12 @@
-prime:
-	clang++ prime.cpp -std=c++20 -fbracket-depth=10000 -DNUM_PRIMES=1000 -O3
+all: prime sieve
+.PHONY=all
 
-all: prime
+prime:
+	clang++ prime.cpp -std=c++20 -fbracket-depth=10000 -DNUM_PRIMES=1000 -O3 -o prime
+
+sieve:
+	clang++ sieve.cpp -std=c++20 -O3 -o sieve
+
 
 clean:
-	rm -f a.out
+	rm -f prime sieve
