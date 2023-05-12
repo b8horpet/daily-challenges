@@ -3,70 +3,55 @@
 #include <array>
 using u64 = unsigned long long;
 
-template<u64... nums>
-constexpr bool Test(u64 num, std::integer_sequence<u64, nums...>) {
-	return ((num % 2) && ... && (num % (nums*2+3)));
+template<u64 Val, u64... nums>
+constexpr std::integer_sequence<u64, Val, nums...> concat_f(std::integer_sequence<u64, nums...>);
+
+template<typename T, u64 Val>
+using concat = decltype(concat_f<Val>(std::declval<T>()));
+
+template<u64 first, u64... primes>
+consteval u64 next(std::integer_sequence<u64, primes...>) {
+	constexpr u64 target = first*u64{2}+u64{1};
+	for(u64 p=first+2; p<=target; p+=2) {
+		bool check = ((p % primes) && ...);
+		//bool check = (... && (p % primes));
+		if(check) return p;
+	}
+	return 0; // should not happen
 }
 
 template<u64 N>
-struct Num {
-	static constexpr bool is_prime = Test(N,std::make_integer_sequence<u64, N/4>{});
-	static constexpr u64 value = N;
+struct PrimeSequence {
+	static constexpr u64 first = next<PrimeSequence<N-1>::first>(typename PrimeSequence<N-1>::type{});
+	using type = concat<typename PrimeSequence<N-1>::type, first>;
 };
 
 template<>
-struct Num<3> {
-	static constexpr bool is_prime = true;
+struct PrimeSequence<1> {
+	static constexpr u64 first = 2;
+	using type = std::integer_sequence<u64, 2>;
 };
 
 template<>
-struct Num<2> {
-	static constexpr bool is_prime = true;
+struct PrimeSequence<2> {
+	static constexpr u64 first = 3;
+	using type = std::integer_sequence<u64, 3, 2>;
 };
 
-template<>
-struct Num<1> {
-	static constexpr bool is_prime = false;
-};
-
-template<>
-struct Num<0> {
-	static constexpr bool is_prime = false;
-};
-
-template<u64 N>
-constexpr u64 operator|(u64 a, Num<N> b) {
-	return a ? a : (Num<N>::is_prime ? N : 0ull);
+template<typename T, u64... idx>
+constexpr T reorder(T v, std::integer_sequence<u64, idx...>) {
+	return {v[sizeof...(idx)-idx-1]...};
 }
 
-template<u64 start, u64... nums>
-constexpr u64 Search(std::integer_sequence<u64, nums...>) {
-	return (0ull | ... | Num<start+nums*2>{});
-}
-
-template<u64 Nth>
-struct Prime {
-	static constexpr u64 value = Search<Prime<Nth-1>::value+2>(std::make_integer_sequence<u64, Prime<Nth-1>::value/2>{});
-};
-
-template<>
-struct Prime<0> {
-	static constexpr u64 value = 2;
-};
-
-template<>
-struct Prime<1> {
-	static constexpr u64 value = 3;
-};
-
-template<u64... nums>
-constexpr std::array<u64, sizeof...(nums)> Generate(std::integer_sequence<u64, nums...>) {
-	return {Prime<nums>::value ...};
+template<u64... primes>
+consteval std::array<u64, sizeof...(primes)> Generate(std::integer_sequence<u64, primes...>) {
+	std::array<u64, sizeof...(primes)> p{primes...};
+	return reorder(p,std::make_integer_sequence<u64,sizeof...(primes)>{});
 }
 
 template<u64 N>
 struct FirstPrimes {
-	static constexpr std::array<u64, N> value = Generate(std::make_integer_sequence<u64, N>{});
+	static constexpr std::array<u64, N> value = Generate(typename PrimeSequence<N>::type{});
 };
 
 #ifndef NUM_PRIMES
