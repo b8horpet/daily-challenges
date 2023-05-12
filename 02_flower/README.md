@@ -6,3 +6,7 @@ Challenge description:
 ## Entry:
 
 ![fern](fern.png)
+
+### Explanation
+
+I wrote a quick [blogpost](https://www.tumblr.com/b8horpet/717017290685759488/so-what-even-is-this-and-how-this-works-this-was) about it.
