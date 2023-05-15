@@ -9,11 +9,42 @@ constexpr std::integer_sequence<u64, Val, nums...> concat_f(std::integer_sequenc
 template<typename T, u64 Val>
 using concat = decltype(concat_f<Val>(std::declval<T>()));
 
+consteval u64 Sqrt(u64 v) {
+	if(v<2) return v;
+	u64 lower = 0;
+	u64 upper = v/2;
+	if(upper*upper <= v) return upper;
+	u64 middle;
+	while(lower+1 < upper)
+	{
+		middle = (upper+lower)/2;
+		const u64 m2 = middle*middle;
+		if(m2 < v) {
+			lower = middle;
+		} else if (m2 > v) {
+			upper = middle-1;
+		} else {
+			return middle;
+		}
+	}
+	if((lower+1)*(lower+1) <= v) return lower+1;
+	return lower;
+}
+
 template<u64 first, u64... primes>
 consteval u64 next(std::integer_sequence<u64, primes...>) {
 	constexpr u64 target = first*u64{2}+u64{1};
+	constexpr u64 tests[] = {primes...};
 	for(u64 p=first+2; p<=target; p+=2) {
-		bool check = ((p % primes) && ...);
+		bool check = true;
+		for(u64 i=sizeof...(primes); i-->0 && tests[i]<=Sqrt(p);)
+		{
+			if(p % tests[i] == 0) {
+				check=false;
+				break;
+			}
+		}
+		//bool check = ((p % primes) && ...);
 		//bool check = (... && (p % primes));
 		if(check) return p;
 	}
