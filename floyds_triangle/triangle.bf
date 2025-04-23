@@ -1,12 +1,11 @@
 tape: | counter for endl | sentinel pos 010 | numbers |
 number format: | num | 10 minus num | copy for later |
->>>> allocate memory :D
-+>+< set sentinel to 1
-<+<+>> set counter to 1
+>> allocate memory :D
++>+> set counter to 1
 >>>+++++++++<<< set number to 9
+<<
 [ main loop
-  - set sentinel to 0
-  <
+  > go to counter
   [ counter loop
     -> decrease counter
     >>> go over first num
@@ -28,5 +27,5 @@ number format: | num | 10 minus num | copy for later |
     [[<<+>>-]<<<++++++++++++++++++++++>>>]<<<++++++++++.----------[-]>[->>+<<]>>
   ]
   <+[-<+>>+<]<[->+<]>> update new limit
-  >+ set sentinel to 1
+  <
 ] main loop end
